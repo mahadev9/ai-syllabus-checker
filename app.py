@@ -33,7 +33,12 @@ st.markdown(
     /* ── Hide Streamlit Cloud GitHub & footer chrome ── */
     #MainMenu { visibility: hidden; }
     header[data-testid="stHeader"] { display: none !important; }
-    footer { visibility: hidden !important; }
+    footer { display: none !important; }
+    [data-testid="stFooter"] { display: none !important; }
+    [data-testid="stBottom"] { display: none !important; }
+    [data-testid="stBottom"] > * { display: none !important; }
+    [data-testid="appCreatorAvatar"] { display: none !important; }
+    div:has([data-testid="appCreatorAvatar"]) { display: none !important; }
     [data-testid="stToolbarActions"] { display: none !important; }
     [data-testid="stDecoration"] { display: none !important; }
 
