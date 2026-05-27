@@ -10,6 +10,7 @@ import os
 import textwrap
 
 import streamlit as st
+import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
 from utils.parser import extract_text
@@ -24,6 +25,29 @@ st.set_page_config(
     page_icon="📋",
     layout="wide",
     initial_sidebar_state="expanded",
+)
+
+# ── Hide Streamlit Cloud "Created by" profile badge (injected outside app CSS scope) ──
+components.html(
+    """
+    <script>
+      (function hide() {
+        const el = window.parent.document.querySelector('[data-testid="appCreatorAvatar"]');
+        if (el) {
+          let node = el;
+          // Walk up to the outermost profile container
+          while (node && !node.className?.toString().includes("profileContainer")) {
+            node = node.parentElement;
+          }
+          if (node) node.style.setProperty("display", "none", "important");
+        } else {
+          // Element not yet rendered — retry
+          setTimeout(hide, 300);
+        }
+      })();
+    </script>
+    """,
+    height=0,
 )
 
 # ── Custom CSS ───────────────────────────────────────────────────────────────
