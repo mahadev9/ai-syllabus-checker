@@ -4,6 +4,7 @@ AI Syllabus Checker
 Upload a syllabus (PDF / DOCX / text paste) and get instant AI-powered
 feedback on policy completeness, clarity, and AI-readiness.
 """
+
 from __future__ import annotations
 
 import os
@@ -13,9 +14,9 @@ import streamlit as st
 import streamlit.components.v1 as components
 from dotenv import load_dotenv
 
-from utils.parser import extract_text
-from utils.rules import SectionResult, analyze, ai_readiness_label, compute_score
 from utils import llm
+from utils.parser import extract_text
+from utils.rules import SectionResult, ai_readiness_label, analyze, compute_score
 
 load_dotenv()
 
@@ -31,18 +32,35 @@ st.set_page_config(
 components.html(
     """
     <script>
-      (function hide() {
-        const el = window.parent.document.querySelector('[data-testid="appCreatorAvatar"]');
-        if (el) {
-          let node = el;
-          // Walk up to the outermost profile container
-          while (node && !node.className?.toString().includes("profileContainer")) {
-            node = node.parentElement;
+      (function() {
+        function killBadge(doc) {
+          const el = doc.querySelector('[data-testid="appCreatorAvatar"]');
+          if (el) {
+            let node = el;
+            while (node && !node.className?.toString().includes("profileContainer")) {
+              node = node.parentElement;
+            }
+            if (node) node.style.setProperty("display", "none", "important");
+            return true;
           }
-          if (node) node.style.setProperty("display", "none", "important");
-        } else {
-          // Element not yet rendered — retry
-          setTimeout(hide, 300);
+          // Also try wildcard class match
+          const byClass = doc.querySelector('[class*="profileContainer"]');
+          if (byClass) {
+            byClass.style.setProperty("display", "none", "important");
+            return true;
+          }
+          return false;
+        }
+
+        const doc = window.parent.document;
+
+        // Try immediately
+        if (!killBadge(doc)) {
+          // Watch for it being injected into the DOM
+          const observer = new MutationObserver(() => {
+            if (killBadge(doc)) observer.disconnect();
+          });
+          observer.observe(doc.body, { childList: true, subtree: true });
         }
       })();
     </script>
@@ -63,6 +81,8 @@ st.markdown(
     [data-testid="stBottom"] > * { display: none !important; }
     [data-testid="appCreatorAvatar"] { display: none !important; }
     div:has([data-testid="appCreatorAvatar"]) { display: none !important; }
+    [class*="profileContainer"] { display: none !important; }
+    [class*="profilePreview"] { display: none !important; }
     [data-testid="stToolbarActions"] { display: none !important; }
     [data-testid="stDecoration"] { display: none !important; }
 
@@ -209,7 +229,6 @@ with paste_tab:
 # ANALYSIS (rule-based — always available)
 # ─────────────────────────────────────────────────────────────────────────────
 if syllabus_text:
-
     st.divider()
     st.subheader("📊 Section Analysis")
 
@@ -244,9 +263,9 @@ if syllabus_text:
             kw_preview = ", ".join(r.matched_keywords[:3])
             st.markdown(
                 f'<div class="section-found">'
-                f'<strong>{r.label}</strong>'
+                f"<strong>{r.label}</strong>"
                 f'<br><span style="font-size:.8em;color:#555;">Matched: <em>{kw_preview}</em></span>'
-                f'</div>',
+                f"</div>",
                 unsafe_allow_html=True,
             )
 
@@ -256,9 +275,9 @@ if syllabus_text:
             for r in missing_sections:
                 st.markdown(
                     f'<div class="section-missing">'
-                    f'<strong>{r.label}</strong>'
+                    f"<strong>{r.label}</strong>"
                     f'<br><span style="font-size:.8em;color:#888;">Not detected in text</span>'
-                    f'</div>',
+                    f"</div>",
                     unsafe_allow_html=True,
                 )
         else:
@@ -345,9 +364,7 @@ if syllabus_text:
 
     if "generated_policy" in st.session_state:
         st.divider()
-        st.markdown(
-            f"#### 📝 Generated {st.session_state['policy_stance']} AI Policy"
-        )
+        st.markdown(f"#### 📝 Generated {st.session_state['policy_stance']} AI Policy")
         policy_box = st.text_area(
             "Copy this into your syllabus",
             value=st.session_state["generated_policy"],
@@ -430,11 +447,17 @@ else:
 
     with st.expander("🎯 What this tool checks", expanded=True):
         checks = [
-            ("AI / Generative AI Policy", "Does your syllabus address ChatGPT, Claude, and other AI tools?"),
+            (
+                "AI / Generative AI Policy",
+                "Does your syllabus address ChatGPT, Claude, and other AI tools?",
+            ),
             ("Academic Integrity", "Is plagiarism / cheating policy clearly stated?"),
             ("Accessibility", "Is there a disability accommodations statement?"),
             ("Grading Policy", "Are weights, rubrics, and the grading scale explicit?"),
-            ("Late Work Policy", "Do students know the consequences of submitting late?"),
+            (
+                "Late Work Policy",
+                "Do students know the consequences of submitting late?",
+            ),
             ("Instructor Contact", "Are office hours and contact info easy to find?"),
             ("Student Support", "Are campus resources mentioned?"),
             ("Attendance Policy", "Are expectations around attendance spelled out?"),
