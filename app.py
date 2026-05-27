@@ -122,16 +122,38 @@ input_tab, paste_tab = st.tabs(["📁 Upload File", "✏️ Paste Text"])
 
 syllabus_text: str = ""
 
+MAX_FILE_SIZE_MB = 10
+MAX_FILES = 2
+
 with input_tab:
-    uploaded = st.file_uploader(
-        "Upload your syllabus (PDF, DOCX, or TXT)",
+    uploaded_files = st.file_uploader(
+        "Upload your syllabus (PDF, DOCX, or TXT) — max 2 files, 10 MB each",
         type=["pdf", "docx", "doc", "txt"],
+        accept_multiple_files=True,
         help="Files are processed locally; text is sent to the LLM only when you click an AI action.",
     )
-    if uploaded:
-        with st.spinner("Extracting text…"):
-            syllabus_text = extract_text(uploaded)
-        st.success(f"Extracted {len(syllabus_text):,} characters from **{uploaded.name}**")
+
+    if uploaded_files:
+        # Enforce file count
+        if len(uploaded_files) > MAX_FILES:
+            st.error(f"Please upload at most {MAX_FILES} files at a time.")
+            uploaded_files = []
+
+        all_texts = []
+        for uploaded in uploaded_files:
+            size_mb = len(uploaded.getvalue()) / (1024 * 1024)
+            if size_mb > MAX_FILE_SIZE_MB:
+                st.error(
+                    f"**{uploaded.name}** is {size_mb:.1f} MB — exceeds the {MAX_FILE_SIZE_MB} MB limit. Please upload a smaller file."
+                )
+                continue
+            with st.spinner(f"Extracting text from {uploaded.name}…"):
+                text = extract_text(uploaded)
+            st.success(f"Extracted {len(text):,} characters from **{uploaded.name}**")
+            all_texts.append(text)
+
+        if all_texts:
+            syllabus_text = "\n\n---\n\n".join(all_texts)
 
 with paste_tab:
     pasted = st.text_area(
