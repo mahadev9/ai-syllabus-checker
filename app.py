@@ -58,7 +58,7 @@ with st.sidebar:
     # Provider toggle
     provider_label = st.radio(
         "LLM Provider",
-        ["Claude (Anthropic)", "GPT-4o (OpenAI)"],
+        ["Claude (Anthropic)", "GPT-5.4 (OpenAI)"],
         index=0,
         help="Switch between Anthropic Claude and OpenAI GPT at any time.",
     )
