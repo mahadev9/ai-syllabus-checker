@@ -30,6 +30,17 @@ st.set_page_config(
 st.markdown(
     """
     <style>
+    /* ── Hide Streamlit Cloud GitHub & footer chrome ── */
+    #MainMenu { visibility: hidden; }
+    header[data-testid="stHeader"] { display: none !important; }
+    footer { visibility: hidden !important; }
+    [data-testid="stToolbarActions"] { display: none !important; }
+    [data-testid="stDecoration"] { display: none !important; }
+
+    /* ── Hide default "Limit 200MB" file uploader text ── */
+    [data-testid="stFileUploaderDropzoneInstructions"] small { display: none !important; }
+    [data-testid="stFileUploaderDropzone"] small { display: none !important; }
+
     .score-card {
         border-radius: 12px;
         padding: 20px 28px;
