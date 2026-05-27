@@ -33,35 +33,36 @@ components.html(
     """
     <script>
       (function() {
+        // The Streamlit app runs inside an iframe on Streamlit Cloud.
+        // components.html creates a nested iframe, so:
+        //   window             = components iframe
+        //   window.parent      = Streamlit app iframe document
+        //   window.parent.parent = outer Streamlit Cloud page (where badges live)
         function killBadge(doc) {
-          const el = doc.querySelector('[data-testid="appCreatorAvatar"]');
-          if (el) {
-            let node = el;
-            while (node && !node.className?.toString().includes("profileContainer")) {
-              node = node.parentElement;
-            }
-            if (node) node.style.setProperty("display", "none", "important");
-            return true;
-          }
-          // Also try wildcard class match
-          const byClass = doc.querySelector('[class*="profileContainer"]');
-          if (byClass) {
-            byClass.style.setProperty("display", "none", "important");
-            return true;
-          }
-          return false;
-        }
-
-        const doc = window.parent.document;
-
-        // Try immediately
-        if (!killBadge(doc)) {
-          // Watch for it being injected into the DOM
-          const observer = new MutationObserver(() => {
-            if (killBadge(doc)) observer.disconnect();
+          // Hide profile container
+          doc.querySelectorAll('[class*="profileContainer"]').forEach(el => {
+            el.style.setProperty("display", "none", "important");
           });
-          observer.observe(doc.body, { childList: true, subtree: true });
+          // Hide viewer badge (Streamlit logo link)
+          doc.querySelectorAll('[class*="viewerBadge"]').forEach(el => {
+            el.style.setProperty("display", "none", "important");
+          });
         }
+
+        function run() {
+          try {
+            const outerDoc = window.parent.parent.document;
+            killBadge(outerDoc);
+            // Keep watching in case Streamlit re-renders the shell
+            new MutationObserver(() => killBadge(outerDoc))
+              .observe(outerDoc.body, { childList: true, subtree: true });
+          } catch(e) {
+            // Cross-origin guard — nothing we can do
+          }
+        }
+
+        if (document.readyState === "complete") { run(); }
+        else { window.addEventListener("load", run); }
       })();
     </script>
     """,
@@ -79,10 +80,7 @@ st.markdown(
     [data-testid="stFooter"] { display: none !important; }
     [data-testid="stBottom"] { display: none !important; }
     [data-testid="stBottom"] > * { display: none !important; }
-    [data-testid="appCreatorAvatar"] { display: none !important; }
-    div:has([data-testid="appCreatorAvatar"]) { display: none !important; }
-    [class*="profileContainer"] { display: none !important; }
-    [class*="profilePreview"] { display: none !important; }
+    /* profile/viewer badges live outside the app iframe — handled via JS above */
     [data-testid="stToolbarActions"] { display: none !important; }
     [data-testid="stDecoration"] { display: none !important; }
 
