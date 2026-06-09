@@ -136,7 +136,7 @@ with st.sidebar:
         )
         model_choice = st.selectbox(
             "Model",
-            ["claude-sonnet-4-6", "claude-opus-4-7", "claude-haiku-4-5-20251001"],
+            ["claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
             index=0,
         )
     else:
