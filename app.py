@@ -136,7 +136,7 @@ with st.sidebar:
         )
         model_choice = st.selectbox(
             "Model",
-            ["claude-sonnet-4-6", "claude-haiku-4-5-20251001"],
+            ["claude-haiku-4-5-20251001", "claude-sonnet-4-6"],
             index=0,
         )
     else:
@@ -150,7 +150,7 @@ with st.sidebar:
         )
         model_choice = st.selectbox(
             "Model",
-            ["gpt-5.4-2026-03-05", "gpt-5.4-mini-2026-03-17"],
+            ["gpt-5.4-mini-2026-03-17", "gpt-5.4-2026-03-05"],
             index=0,
         )
 
