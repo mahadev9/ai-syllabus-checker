@@ -126,28 +126,34 @@ with st.sidebar:
 
     # API keys
     if provider == "anthropic":
-        default_key = os.getenv("ANTHROPIC_API_KEY", "")
-        api_key = st.text_input(
-            "Anthropic API Key",
-            value=default_key,
-            type="password",
-            placeholder="sk-ant-...",
-            help="Get a key at console.anthropic.com",
-        )
+        env_key = os.getenv("ANTHROPIC_API_KEY", "")
+        if env_key:
+            api_key = env_key
+            st.success("API key loaded from environment", icon="🔐")
+        else:
+            api_key = st.text_input(
+                "Anthropic API Key",
+                type="password",
+                placeholder="sk-ant-...",
+                help="Get a key at console.anthropic.com",
+            )
         model_choice = st.selectbox(
             "Model",
             ["claude-haiku-4-5-20251001", "claude-sonnet-4-6"],
             index=0,
         )
     else:
-        default_key = os.getenv("OPENAI_API_KEY", "")
-        api_key = st.text_input(
-            "OpenAI API Key",
-            value=default_key,
-            type="password",
-            placeholder="sk-...",
-            help="Get a key at platform.openai.com",
-        )
+        env_key = os.getenv("OPENAI_API_KEY", "")
+        if env_key:
+            api_key = env_key
+            st.success("API key loaded from environment", icon="🔐")
+        else:
+            api_key = st.text_input(
+                "OpenAI API Key",
+                type="password",
+                placeholder="sk-...",
+                help="Get a key at platform.openai.com",
+            )
         model_choice = st.selectbox(
             "Model",
             ["gpt-5.4-mini-2026-03-17", "gpt-5.4-2026-03-05"],

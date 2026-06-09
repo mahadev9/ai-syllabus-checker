@@ -9,8 +9,8 @@ from typing import Literal
 Provider = Literal["anthropic", "openai"]
 
 # Default models
-ANTHROPIC_MODEL = "claude-sonnet-4-6"
-OPENAI_MODEL = "gpt-4o"
+ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
+OPENAI_MODEL = "gpt-5.4-mini-2026-03-17"
 
 # ---------------------------------------------------------------------------
 # System prompt shared across all tasks
