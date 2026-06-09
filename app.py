@@ -363,12 +363,14 @@ if syllabus_text:
     if "generated_policy" in st.session_state:
         st.divider()
         st.markdown(f"#### 📝 Generated {st.session_state['policy_stance']} AI Policy")
-        policy_box = st.text_area(
-            "Copy this into your syllabus",
-            value=st.session_state["generated_policy"],
-            height=260,
-            label_visibility="collapsed",
-        )
+        st.markdown(st.session_state["generated_policy"])
+        with st.expander("📋 Copy raw text"):
+            st.text_area(
+                "Raw text",
+                value=st.session_state["generated_policy"],
+                height=220,
+                label_visibility="collapsed",
+            )
         st.download_button(
             "⬇️ Download as .txt",
             data=st.session_state["generated_policy"],
